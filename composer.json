@@ -2,7 +2,7 @@
     "name": "j0113/php-oop-db",
     "description": "Object Oriented database wrapper for PHP. Designed to be(come) compatible with multiple database. Queries are written in PHP and tables are connected to models.",
     "type": "libary",
-    "license": "Apache License 2.0",
+    "license": "Apache-2.0",
     "authors": [
         {
             "name": "J0113"
