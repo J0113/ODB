@@ -3,3 +3,4 @@
 ._*
 composer.phar
 /vendor/
+composer.lock

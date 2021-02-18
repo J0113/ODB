@@ -1,0 +1,20 @@
+{
+    "name": "jollesnaas/php-oop-db",
+    "description": "Object Oriented database wrapper for PHP. Designed to be(come) compatible with multiple database. Queries are written in PHP and tables are connected to models.",
+    "type": "libary",
+    "license": "Apache License 2.0",
+    "authors": [
+        {
+            "name": "J0113"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7"
+    },
+    "autoload": {
+        "psr-4": {
+            "PHP_OOP_Database\\": "src/"
+        }
+    }
+}
