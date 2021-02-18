@@ -8,7 +8,6 @@
             "name": "J0113"
         }
     ],
-    "minimum-stability": "dev",
     "require": {
         "php": ">=7.4"
     },
