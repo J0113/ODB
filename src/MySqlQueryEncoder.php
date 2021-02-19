@@ -143,7 +143,7 @@ class MySqlQueryEncoder extends QueryEncoder
      */
     public function update_sql(array $data) : string
     {
-        if (empty($table)) return "";
+        if (empty($this->table)) return "";
 
         $table = $this->str_escape($this->table);
         $sql = "UPDATE `$table` ";
