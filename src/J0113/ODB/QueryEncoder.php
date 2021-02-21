@@ -1,5 +1,11 @@
 <?php
-namespace PHP_OOP_Database;
+namespace J0113\ODB;
+
+/**
+ * @author      Jolle
+ * @copyright   Copyright (c), 2021 Jolle
+ * @license     Apache License 2.0
+ */
 abstract class QueryEncoder extends QueryBuilder
 {
     /**

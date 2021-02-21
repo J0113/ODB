@@ -1,7 +1,12 @@
 <?php
-namespace PHP_OOP_Database;
+namespace J0113\ODB;
 use Exception;
 
+/**
+ * @author      Jolle
+ * @copyright   Copyright (c), 2021 Jolle
+ * @license     Apache License 2.0
+ */
 class PDODatabaseObject implements Engine
 {
 

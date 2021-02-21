@@ -9,11 +9,12 @@
         }
     ],
     "require": {
-        "php": ">=7.4"
+        "php": ">=7.4",
+        "ext-pdo": "*"
     },
     "autoload": {
         "psr-4": {
-            "PHP_OOP_Database\\": "src/"
+            "J0113\\ODB\\": "src/J0113/ODB"
         }
     }
 }

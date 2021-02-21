@@ -1,9 +1,14 @@
 <?php
-namespace PHP_OOP_Database;
+namespace J0113\ODB;
 use Exception;
 use PDO;
 use PDOException;
 
+/**
+ * @author      Jolle
+ * @copyright   Copyright (c), 2021 Jolle
+ * @license     Apache License 2.0
+ */
 class PDODatabase
 {
     /**
