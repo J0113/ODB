@@ -108,7 +108,7 @@ class PDODatabaseObject implements Engine
 
         foreach ($columns as $column){
             if (isset($row[$column])){
-                $obj->$column = $row[$column];
+                $obj->$column = SerializeHelper::maybe_unserialize($row[$column]);
             }
         }
 
@@ -187,7 +187,7 @@ class PDODatabaseObject implements Engine
         $data = [];
         foreach (self::get_columns() as $column){
             if ($this->$column !== null){
-                $data[$column] = $this->$column;
+                $data[$column] = SerializeHelper::maybe_serialize($this->$column);
             }
         }
         return $data;
@@ -278,4 +278,24 @@ class PDODatabaseObject implements Engine
         return $res = preg_replace("/[^a-zA-Z0-9_-]/", "", str_replace(array_keys($replace), array_values($replace), $table));
 
     }
+
+    public function __serialize(): array
+    {
+        if ($this->id == null){
+            $this->save();
+        }
+
+        return [$this->id];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        /** @var PDODatabaseObject $class */
+        $class = get_called_class();
+
+        foreach ($class::getOne((new QueryBuilder())->where("id", $data[0]))->get_data() as $key => $value){
+            $this->$key = SerializeHelper::maybe_unserialize($value);
+        }
+    }
+
 }
