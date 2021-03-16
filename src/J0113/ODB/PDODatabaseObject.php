@@ -1,6 +1,8 @@
 <?php
 namespace J0113\ODB;
 use Exception;
+use ReflectionClass;
+use ReflectionProperty;
 
 /**
  * @author      Jolle
@@ -79,6 +81,34 @@ class PDODatabaseObject implements Engine
         $query->from(self::get_table());
 
         $result = PDODatabase::query($query, $return, $return_false_on_exception);
+
+        if ($return == "rows" && is_array($result)){
+            $objects = array();
+            foreach ($result as $row){
+                if (!empty($row)){
+                    $objects[] = self::row2object($row);
+                }
+            }
+            $result = $objects;
+        }
+
+        return $result;
+    }
+
+    /**
+     * ONLY use if needed! You will lose all validation and escaping (but the models are generated as objects)
+     * @param string $sql - the SQL query.
+     * @param array $data - array of escaped parameters, can be empty
+     * @param string $return - rows, count, none
+     * @param string $return_false_on_exception - If it just throw an exeption or return false
+     * @return array|bool|mixed
+     * @throws Exception
+     * @uses PDODatabase::sql_query <-- see here
+     * @deprecated WARNING THIS METHODE IS NOT SAVE. PLEASE USE WITH CAUTION, DO NOT USE USER INPUT AND MAKE SURE THE TABLES MATCH (or bad things will happen).
+     */
+    static public function getSql(string $sql, $data = [], $return = "rows", $return_false_on_exception = 'null'){
+
+        $result = PDODatabase::sql_query($sql, $data, $return, $return_false_on_exception);
 
         if ($return == "rows" && is_array($result)){
             $objects = array();
@@ -182,6 +212,10 @@ class PDODatabaseObject implements Engine
         return $columns;
     }
 
+    /**
+     * This will just return all the data.
+     * @return array
+     */
     protected function get_data() : array
     {
         $data = [];
@@ -279,6 +313,10 @@ class PDODatabaseObject implements Engine
 
     }
 
+    /**
+     * Handles serialization (we will only store the ID, on unserialization we will locate the item in the database)
+     * @return array
+     */
     public function __serialize(): array
     {
         if ($this->id == null){
@@ -288,6 +326,10 @@ class PDODatabaseObject implements Engine
         return [$this->id];
     }
 
+    /**
+     * Will locate the object by the ID.
+     * @param array $data
+     */
     public function __unserialize(array $data): void
     {
         /** @var PDODatabaseObject $class */
@@ -296,6 +338,84 @@ class PDODatabaseObject implements Engine
         foreach ($class::getOne((new QueryBuilder())->where("id", $data[0]))->get_data() as $key => $value){
             $this->$key = SerializeHelper::maybe_unserialize($value);
         }
+    }
+
+
+    /**
+     * Will return the SQL query to create the table for this model.
+     * @var bool $include_drop_table - If it should include a drop statement.
+     * @return string
+     */
+    public static function sqlTable(bool $include_drop_table = true) : string
+    {
+        $table = self::get_table();
+        $sql = "CREATE TABLE `$table` (";
+        $columns = [];
+
+        $reflection = new ReflectionClass(get_called_class());
+        $properties = $reflection->getProperties(ReflectionProperty::IS_PUBLIC | ReflectionProperty::IS_PROTECTED | ReflectionProperty::IS_PRIVATE);
+
+        foreach ($properties as $prop){
+
+            // Name
+            $column_name = $prop->getName();
+            $column = "`$column_name`";
+
+            // Type
+            $type = $prop->getType();
+            if ($type){
+                switch ($type->getName()){
+                    case "int":
+                        $sql_type = "BIGINT(255)";
+                        break;
+                    case "double":
+                    case "float":
+                        $sql_type = "float";
+                        break;
+                    case "bool":
+                    case "boolean":
+                        $sql_type = "TINYINT(1)";
+                        break;
+                    case "string":
+                    default:
+                        $sql_type = "MEDIUMTEXT";
+                        break;
+                }
+            } else $sql_type = "MEDIUMTEXT";
+
+            $column .= " $sql_type";
+
+            // ID
+            if ($column_name == "id") $column .= " NOT NULL AUTO_INCREMENT";
+
+            // Nullable
+            elseif (!$type->allowsNull()) $column .= " NOT NULL";
+
+            // To the array
+            $columns[] = $column;
+        }
+
+        // Set the primary key
+        $columns[] = "PRIMARY KEY (`id`)";
+
+        // Combine
+        $sql .= implode(",", $columns) . ");";
+
+        // if $include_drop_table than we will prepend a drop if exists query.
+        if ($include_drop_table) $sql = "DROP TABLE IF EXISTS `$table`; $sql";
+
+        // Return
+        return $sql;
+    }
+
+    /**
+     * Will generate a table from this model.
+     * @var bool $drop_table - Will also remove the old table if it exists.
+     * @return bool
+     */
+    public static function createTable(bool $drop_table = false) : bool
+    {
+        return self::getSql(self::sqlTable($drop_table), [], "bool");
     }
 
 }
