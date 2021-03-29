@@ -30,7 +30,7 @@ class SerializeHelper
 
     /**
      * Serialize if the data can't be stored without it.
-     * Arrays and objects will get serilized, normal data will not.
+     * Arrays and objects will get serialized, normal data will not.
      *
      * @param mixed $data
      * @return string|mixed

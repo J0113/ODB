@@ -220,9 +220,7 @@ class PDODatabaseObject implements Engine
     {
         $data = [];
         foreach (self::get_columns() as $column){
-            if ($this->$column !== null){
-                $data[$column] = SerializeHelper::maybe_serialize($this->$column);
-            }
+            $data[$column] = SerializeHelper::maybe_serialize($this->$column);
         }
         return $data;
     }
